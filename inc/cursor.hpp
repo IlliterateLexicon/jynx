@@ -2,15 +2,13 @@
 
 #include <string>
 
+struct esc {
+	std::string esc;
+	std::string operator()(bool print = true);
+};
+
 namespace Jynx {
 	struct Cursor {
-		private:
-			struct esc {
-				std::string esc;
-				std::string operator()(bool print = true);
-			};
-	
-		public:
 			esc show = {"\033[?25h"};
 			esc hide = {"\033[?25l"};
 			
