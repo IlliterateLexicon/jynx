@@ -11,7 +11,6 @@
 namespace Jynx {
 	struct jynx {
 		Cursor cursor;
-		Screen screen;
 		Clear clear;
 		Termio termio;
 		Input input;
