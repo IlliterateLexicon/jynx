@@ -15,8 +15,8 @@ namespace Jynx {
 			esc save = {"\033s"};
 			esc load = {"\033u"};
 
-			std::string move(int x, int y, bool print = true);
-			std::string nudge(int x, int y, bool print = true);
+			static std::string move(int x, int y, bool print = true);
+			static std::string nudge(int x, int y, bool print = true);
 
 			std::string operator()(bool state = true, bool print = true);
 	};

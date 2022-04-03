@@ -3,7 +3,6 @@
 #include "../inc/output.hpp"
 #include "../inc/cursor.hpp"
 	
-Jynx::Cursor cursor; //sets termio attributes
 	
 std::string text_attr::operator()(bool value, bool print) {
 	if ( print ) {
@@ -14,7 +13,7 @@ std::string text_attr::operator()(bool value, bool print) {
 
 namespace Jynx {
 	void Output::print(std::string text, int x, int y) {
-		cursor.move(x, y);
+		Jynx::Cursor::move(x, y);
 		std::cout << text;
 	}
 
@@ -48,5 +47,26 @@ namespace Jynx {
 		
 		return c24bit; 
 	}
+
+	std::string Output::clear(bool to_end, bool to_beg, bool move, bool print) {
+    std::string esc;
+    if ( to_end ) { esc += "\033[0J"; }
+    if ( to_beg ) { esc += "\033[1J"; }                                     
+    if ( move ) { esc += "\033[1;1H"; }
+      
+    if (print) { std::cout << esc; }
+    return esc;	
+	}
+
+	std::string Output::clearLine(bool to_end, bool to_beg, bool move, bool print) {
+    std::string esc;
+    if ( to_end ) { esc += "\033[0K"; }
+    if ( to_beg ) { esc += "\033[1K"; }
+    if ( move ) { esc += "\033[1000D"; }
+       
+    if (print) { std::cout << esc; }
+    return esc;
+  }
+
 }
 

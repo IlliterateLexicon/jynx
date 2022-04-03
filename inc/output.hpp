@@ -31,5 +31,8 @@ namespace Jynx {
 		text_attr reverse = {1, 22};
 		text_attr strike = {1, 22};
 		std::string reset(bool print = true);
+
+		std::string clear(bool to_end = true, bool to_beg = true, bool move = true, bool print = true);
+		std::string clearLine(bool to_end = true, bool to_beg = true, bool move = true, bool print = true);
 	};
 }
