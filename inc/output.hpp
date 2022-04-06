@@ -17,11 +17,11 @@ namespace Jynx {
 		static int height();
 		
 		static int * center();
-		static int centerW();
-		static int centerH();
+		static int centerWidth();
+		static int centerHeight();
 
-		std::string color(int hex, int ansi, bool print = true);
-		std::string color(int r, int g, int b, int ansi, bool print = true);
+		std::string color(int r, int g, int b, bool print = true);
+		std::string color(int hex, bool print = true);
 
 		text_attr bold = {1, 22};
 		text_attr faint = {1, 22};

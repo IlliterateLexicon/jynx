@@ -37,10 +37,12 @@ install: bin/libjynx.so
 	sudo cp inc/*.hpp /usr/include/jynx
 	sudo ldconfig
 
-$(TEST)/test: bin/libjynx.so
+$(TEST)/main.cpp:
+	[ -f $(TEST)/main.cpp ] || touch $(TEST)/main.cpp && echo -en "int main() {\n\treturn 0;\n}" > $(TEST)/main.cpp
+
+$(TEST)/test: $(TEST)/main.cpp bin/libjynx.so
 	echo 'Compiling "test"'
 	[ -d $(TEST) ] || mkdir $(TEST)
-	[ -f $(TEST)/main.cpp ] || touch $(TEST)/main.cpp && echo -en "int main() {\n\treturn 0;\n}" > $(TEST)/main.cpp
 	$(CC) $(TEST)/main.cpp -o $(TEST)/test -L bin/ -ljynx
 
 test: $(TEST)/test
