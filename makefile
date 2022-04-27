@@ -1,56 +1,76 @@
-# THE MAKE FILE FOR JYNX
+cc = g++
 
-CC = g++
+src = $(wildcard src/*.cpp)
+obj = $(patsubst src/%.cpp, build/%.o, $(src))
+err = "/tmp/makefile_error"
 
-SRC = $(wildcard src/*.cpp)
-OBJ = $(patsubst src/%.cpp, bin/%.o, $(SRC))
+help = "usage\n\
+\0     make clean -> remove build directory\n\
+\0   make install -> install and compile jynx\n\
+\0 make uninstall -> uninstall jynx and all bindings\n\
+\0    make python -> install and compile python bindings\
+"
 
-OLD = .dev/old
-TEST = .dev/testing
+fail = \x1b[91mFail\x1b[39m\n
+success = \x1b[92mDone\x1b[39m\n
 
-INSTALL = /usr/lib/libjynx.so
+check = 2> $(err) && echo -en "$(success)" || true
+check_fail = && echo -e "$(fail)\nERROR: " && cat $(err) && echo -en "\nENTER TO QUIT" && read && exit 1 
 
-bin/libjynx.so: $(OBJ) 
-	[ -d bin ] || mkdir bin
-	echo 'Compiling "bin/*.o" -> "bin/libjynx.so"'
-	$(CC) -shared $^ -o $@
-	
-bin/%.o: src/%.cpp inc/%.hpp
-	[ -d bin ] || mkdir bin
-	echo 'Compiling "$^" -> "$@"'
-	$(CC) -fpic -c $< -o $@
+so = libjynx.so 
+install_location = /usr/lib/
 
-install: bin/libjynx.so
-	[ -d .dev ] || mkdir .dev
-	[ -d .dev/old/ ] || mkdir .dev/old
-	[ -d /usr/include/jynx ] || sudo mkdir  /usr/include/jynx
-	[ -d /usr/include/jynx ] || sudo mkdir /usr/include/jynx/*.hpp
-	echo "Installing Shared Library"
-	[ -f $(INSTALL) ] && sudo mv $(INSTALL) $(OLD)/old.libjynx.so
-	[ -f $(OLD)/old.libjynx.so ] && rm -f $(OLD)/old.libjynx.so
-	sudo cp bin/libjynx.so $(INSTALL)
-	sudo cp bin/libjynx.so $(OLD)/old.libjynx.so
-	echo "Installing Headers"
-	[ -d $(OLD)/inc ] && true || mkdir "$(OLD)/inc"
-	sudo rm -f $(OLD)/inc/*.hpp
-	sudo mv /usr/include/jynx/*.hpp $(OLD)/inc || true
-	sudo cp inc/*.hpp /usr/include/jynx
-	sudo ldconfig
+default:
+	echo -e $(help)
 
-$(TEST)/main.cpp:
-	[ -f $(TEST)/main.cpp ] || touch $(TEST)/main.cpp && echo -en "int main() {\n\treturn 0;\n}" > $(TEST)/main.cpp
+get_sudo:
+	echo -e "Getting Sudo Perms..."
+	sudo echo -en
 
-$(TEST)/test: $(TEST)/main.cpp bin/libjynx.so
-	echo 'Compiling "test"'
-	[ -d $(TEST) ] || mkdir $(TEST)
-	$(CC) $(TEST)/main.cpp -o $(TEST)/test -L bin/ -ljynx
+build_checks:
+	echo -e  "Starting Build Checks..."
+	echo -en "Checking for build dir: "
+	[ -d ./build ] && echo -en "$(success)" || true
+	[ ! -d ./build ] && echo -en "$(fail)" && echo -en "Makeing dir './build': " && mkdir ./build && echo -en "$(success)" || true
 
-test: $(TEST)/test
-	echo -e '\033[7m TEST START \033[0m'
-	$(TEST)/./test
-	echo -e '\033[7m  TEST END  \033[0m'
+build/%.o: src/%.cpp inc/%.hpp
+	echo -en "Compiling $@: "
+	echo -en "$(success)"
+	$(cc) -fpic -c $< -o $@ 
 
-clean:
-	rm -f bin/*.o bin/*.so $(TEST)/test
+build/$(so): $(obj)
+	echo -en "Compiling $(so): "
+	$(CC) -shared $< -o $@ && echo -en "$(success)" || echo -en "$(fail)"
 
-.SILENT: 
+install_checks:
+	echo -en "Starting Install Checks...\n"
+	echo -en "Checking for '/usr/include/jynx': "
+	[ -d /usr/include/jynx ] && echo -en "$(success)" || true
+	[ ! -d /usr/include/jynx ] && echo -en "$(fail)" && echo -en "Makeing dir '/usr/include/jynx': " && sudo mkdir "/usr/include/jynx" && echo -en "$(success)" || true
+
+install: get_sudo build_checks build/$(so) install_checks
+	echo -en "Installing...\n"
+	echo -en "Installing $(so): " && sudo cp build/$(so) /usr/lib/ && echo -en "$(success)" && true
+	echo -en "Installing headers: " && sudo cp ./inc/* /usr/include/jynx/ && echo -en "$(success)" || echo -en "Fail"
+	echo -en "Configuring linker: " && sudo ldconfig && echo -en "$(success)"
+	echo -en "Install of jynx was a success!\n"
+
+uninstall:
+	echo -en	
+
+clean: get_sudo
+	echo -en "Cleaning...\n"
+	echo -en "Removeing build dir: "
+	[ -d ./build ] && rm -dr ./build || true
+	[ ! -d ./build ] && echo -en "$(success)" || echo -en "$(fail)"
+	echo -en "  Removeing header dir: "
+	[ -d /usr/include/jynx ] && sudo rm -dr  /usr/include/jynx || true
+	[ ! -d /usr/include/jynx ] && echo -en "$(success)" || echo -en "$(fail)"
+	echo -en "  Removeing shared object: "
+	[ -f /usr/lib/$(so) ] && sudo rm /usr/lib/$(so) || true
+	[ ! -f /usr/lib/$(so) ] && echo -en "$(success)" || echo -en "$(fail)"
+
+python:
+	echo -en
+
+.SILENT:
