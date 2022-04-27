@@ -40,7 +40,7 @@ build/%.o: src/%.cpp inc/%.hpp
 
 build/$(so): $(obj)
 	echo -en "Compiling $(so): "
-	$(CC) -shared $< -o $@ && echo -en "$(success)" || echo -en "$(fail)"
+	$(CC) -shared $^ -o $@ && echo -en "$(success)" || echo -en "$(fail)"
 
 install_checks:
 	echo -en "Starting Install Checks...\n"
