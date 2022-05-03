@@ -1,5 +1,5 @@
-# Jynx
-Jynx is a library to make simple and complex terminal functions easy to use.
+# Jynx Devel
+The development branch of jynx
 
 ## Todo
 - [ ] Make this read me
