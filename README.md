@@ -1,5 +1,3 @@
-# Jynx
-Jynx is a library to make simple and complex terminal functions easy to use.
+# Jynx Development Branch
 
-## Todo
-- [ ] Make this read me
+## NOT STABLE DO NOT USE
